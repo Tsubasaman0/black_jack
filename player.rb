@@ -36,11 +36,11 @@ class Player
         end
         a
     end
-
-    # テスト用メソッド
-
-    def test
-        puts "テストーーーーーー"
+    
+    def reset
+        self.hands = []
+        self.total_score = 0
+        @@deck.reset
     end
 
     def total_score_calc
@@ -53,11 +53,13 @@ class Player
         end
         @total_score
     end
+    # テスト用メソッド
 
-    def reset
-        self.hands = []
-        self.total_score = 0
+    def test
+        puts "テストーーーーーー"
     end
+
+
 
     def reset_score
         self.total_score = 0

@@ -34,6 +34,11 @@ class Deck
             puts "[ #{cards[n].mark} #{cards[n].number} ]"
         end
     end
+
+    def reset
+        @cards = @cards.shuffle
+        @@draw_count = 0
+    end
 end
 
 #deck = Deck.new
