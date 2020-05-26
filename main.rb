@@ -109,13 +109,55 @@ while true # 再プレイのためのループ処理
             if player.burst?
                 break
             end
+        elsif command == 's'
+            # スタンド時の処理（ディーラーのターン）
+            puts 'ディーラーのターンです'
+            puts '先に進む為になにかキーを入力してください'
+            c = gets
+            # プレイヤーがブラックジャックだった場合のディーラーの処理 
+            if player.blackjack?
+                dealer.draw
+                dealer.show
+                if !dealer.blackjack?
+                    puts win_message
+                    break
+                else
+                    puts game_draw_message
+                    break
+                end
+            end
+            # プレイヤーに勝つまでディーラーはヒットし続ける処理
+            while player.total_score > dealer.total_score
+                dealer.draw
+                dealer.show
+                if dealer.burst?
+                    puts 'バースト！'
+                    puts win_message
+                    break
+                elsif dealer.total_score == 21 && player.total_score == 21
+                    break
+                end
+            end
+            if dealer.burst? # バーストしていた場合処理処理終了
+                break
+            elsif dealer.total_score == 21 && player.total_score == 21 # お互い最大値に達していないか確認
+                puts game_draw_message
+                break
+            else
+                puts lose_message
+                break
+            end
+            command = nil
         else
             # h,s以外が入力されたときの処理
             puts error_message
             redo
         end
-        # スタンド時の処理（ディーラーのターン）
         if command == 's'
+        # スタンド時の処理（ディーラーのターン）
+            puts 'ディーラーのターンです'
+            puts '先に進む為になにかキーを入力してください'
+            c = gets
             # プレイヤーがブラックジャックだった場合のディーラーの処理 
             if player.blackjack?
                 dealer.draw
