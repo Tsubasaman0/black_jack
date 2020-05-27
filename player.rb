@@ -20,11 +20,16 @@ class Player
 
     
     def show
-        puts "#{self.name}の手札です"
+        hands = []
         self.hands.each do |hand|
-            puts "[ #{hand.mark} #{hand.number} ]"
+            hands << "#{hand.mark} #{hand.number}"
         end
-        puts "[ トータルスコア #{@total_score} ]"
+        puts "#{self.name}の手札です"
+        puts hands
+        puts  <<~TEXT
+        #{puts "[ トータル  #{@total_score} ]"}
+        -----------------------------------------
+        TEXT
     end
 
     def a_count

@@ -1,6 +1,7 @@
 require 'minitest/autorun'
 require './player'
 require './money'
+require './play'
 class BlackJackTest < Minitest::Test
     # テストカードのマークは「 ♦︎ 」で統一
     @@test_J      = Card.new('♦︎', 'J')

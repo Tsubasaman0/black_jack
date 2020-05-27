@@ -12,29 +12,62 @@ class Play
 
     def message(title) # win or lose or draw or error
         case title
-        when 'win'
-            puts 'あなたの負けです'
-        when 'lose'
+        when :win
             puts 'あなたの勝ちです'
-        when 'draw'
+        when :lose
+            puts 'あなたの負けです'
+        when :draw
             puts '引き分けです'
-        when 'error'
+        when :error
             puts '無効な文字です。もう一度入力してください'
+        when :hs
+            puts "選択してください\s\sPush「h」→ ヒット 、Push「s」→ スタンド"
+        end
+    end
+
+    def dealer_turn
+        # スタンド時の処理（ディーラーのターン）
+        puts 'ディーラーのターンです'
+        wait
+        # プレイヤーがブラックジャックだった場合のディーラーの処理 
+        if @player.blackjack?
+            @dealer.draw
+            @dealer.show
+            if !@dealer.blackjack?
+                message :win
+                return
+            else
+                message :draw
+                return
+            end
+        end
+        # プレイヤーに勝つまでディーラーはヒットし続ける処理
+        while @player.total_score > @dealer.total_score
+            @dealer.draw
+            @dealer.show
+            wait
+            if @dealer.burst?
+                puts 'バースト！'
+                message :win
+                break
+            elsif @dealer.total_score == 21 && @player.total_score == 21
+                message :draw
+                break
+            end
+        end
+
+        if @dealer.burst? # バーストしていた場合処理処理終了
+            return
+        elsif @dealer.total_score == 21 && @player.total_score == 21 # お互い最大値に達していないか確認
+            message :draw
+            return
+        else
+            message :lose
+            return
         end
     end
 
     def play
-        lose_message =<<~TEXT
-        あなたの負けです
-        TEXT
-        win_message =<<~TEXT
-        あなたの勝ちです
-        TEXT
-        game_draw_message =<<~TEXT
-        引き分けです
-        TEXT
-        error_message = "無効な文字です。もう一度入力してください"
-        
         while true # 再プレイのためのループ処理
             # 手札リセット
             @player.reset
@@ -46,13 +79,6 @@ class Play
             @player.draw
             @dealer.draw  
             @dealer.show
-            # ブラックジャックテスト
-            # @dealer.reset
-            # @dealer.in_blackjac 
-            # @dealer.show
-            # @player.reset
-            # @player.in_blackjack
-            # @player.show
 
             # プレイヤーがブラックジャックじゃないか確認の処理
             if @player.blackjack?
@@ -60,11 +86,7 @@ class Play
                     @player.show
             else
                 @player.show
-                puts h_or_s_message =<<~TEXT
-                選択してください
-                Push「h」, ヒット
-                Push「s」, スタンド
-                TEXT
+                message :hs
             end
 
             # ヒット、スタンドの処理（プレイヤーのターン）
@@ -82,7 +104,7 @@ class Play
                         if @player.burst? # バーストしていないか確認
                             @player.show
                             puts "バースト！！"
-                            puts lose_message
+                            message :lose
                             break
                         end
                         # ドロー後のトータルスコアの確認
@@ -95,7 +117,7 @@ class Play
                         end
                         # 最大値ではない場合は、再度ヒットするか処理
                         puts "もう一度引きますか？"
-                        puts h_or_s_message
+                        message :hs
                         while true
                             command = gets.chomp # 再度、ヒットかスタンドの選択
                             if command == 'h'
@@ -103,7 +125,7 @@ class Play
                             elsif command == 's'
                                 break
                             else
-                                puts error_message
+                                message :error
                                 redo
                             end
                         end
@@ -119,96 +141,22 @@ class Play
                         break
                     end
                 elsif command == 's'
-                    # スタンド時の処理（ディーラーのターン）
-                    puts 'ディーラーのターンです'
-                    wait
-                    # プレイヤーがブラックジャックだった場合のディーラーの処理 
-                    if @player.blackjack?
-                        @dealer.draw
-                        @dealer.show
-                        if !@dealer.blackjack?
-                            puts win_message
-                            break
-                        else
-                            puts game_draw_message
-                            break
-                        end
-                    end
-                    # プレイヤーに勝つまでディーラーはヒットし続ける処理
-                    while @player.total_score > @dealer.total_score
-                        @dealer.draw
-                        @dealer.show
-                        wait
-                        if @dealer.burst?
-                            puts 'バースト！'
-                            puts win_message
-                            break
-                        elsif @dealer.total_score == 21 && @player.total_score == 21
-                            break
-                        end
-                    end
-                    if @dealer.burst? # バーストしていた場合処理処理終了
-                        break
-                    elsif @dealer.total_score == 21 && @player.total_score == 21 # お互い最大値に達していないか確認
-                        puts game_draw_message
-                        break
-                    else
-                        puts lose_message
-                        break
-                    end
+                    dealer_turn
                     command = nil
+                    break
                 else
                     # h,s以外が入力されたときの処理
-                    puts error_message
+                    message :error
                     redo
                 end
                 if command == 's'
-                # スタンド時の処理（ディーラーのターン）
-                    puts 'ディーラーのターンです'
-                    wait
-                    # プレイヤーがブラックジャックだった場合のディーラーの処理 
-                    if @player.blackjack?
-                        @dealer.draw
-                        @dealer.show
-                        if !@dealer.blackjack?
-                            puts win_message
-                            break
-                        else
-                            puts game_draw_message
-                            break
-                        end
-                    end
-                    # プレイヤーに勝つまでディーラーはヒットし続ける処理
-                    while @player.total_score > @dealer.total_score
-                        @dealer.draw
-                        @dealer.show
-                        wait
-                        if @dealer.burst?
-                            puts 'バースト！'
-                            puts win_message
-                            break
-                        elsif @dealer.total_score == 21 && @player.total_score == 21
-                            break
-                        end
-                    end
-                    if @dealer.burst? # バーストしていた場合処理処理終了
-                        break
-                    elsif @dealer.total_score == 21 && @player.total_score == 21 # お互い最大値に達していないか確認
-                        puts game_draw_message
-                        break
-                    else
-                        puts lose_message
-                        break
-                    end
+                    dealer_turn
+                    break
                 end
             end
             # 再プレイの処理
-            puts <<~TEXT
-            もう一回遊びますか？
-            選択してください
-            Push「h」, はい
-            Push「s」, いいえ
-            TEXT
+            puts "もう一回遊びますか？"
+            message :hs
             while true
                 command = gets.chomp # 再プレイするか選択
                 if command == "h"
@@ -217,16 +165,12 @@ class Play
                 elsif command == "s"
                     break
                 else
-                    puts error_message
+                    message :error
                     redo
                 end
             end
             # 再プレイの処理
-            if command == nil
-                redo
-            else
-                break
-            end
+            command == nil ? redo : break
         end
     end
 
