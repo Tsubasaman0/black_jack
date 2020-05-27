@@ -3,10 +3,24 @@ require './money'
 
 class Play
     @@money = Money.new
+    @@t = 'test'
     def initialize
         @player = Player.new
         @dealer = Player.new(name: 'ディーラー')
         play
+    end
+
+    def message(title) # win or lose or draw or error
+        case title
+        when 'win'
+            puts 'あなたの負けです'
+        when 'lose'
+            puts 'あなたの勝ちです'
+        when 'draw'
+            puts '引き分けです'
+        when 'error'
+            puts '無効な文字です。もう一度入力してください'
+        end
     end
 
     def play
