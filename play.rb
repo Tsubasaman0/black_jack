@@ -21,7 +21,7 @@ class Play
         when :error
             puts '無効な文字です。もう一度入力してください'
         when :hs
-            puts "選択してください\s\sPush「h」→ ヒット 、Push「s」→ スタンド"
+            puts "選択してください\s\sPush「h」→ ヒット 、Push「s」→ スタンド" # hとsを１、２にしたい。ヒット、スタンド部分に引数を当てられるようにしたい。
         end
     end
 
