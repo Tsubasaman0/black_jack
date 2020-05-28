@@ -10,7 +10,7 @@ class Play
         play
     end
 
-    def message(title) # win or lose or draw or error
+    def message(title, choice1="ヒット", choice2="スタンド") # win or lose or draw or error
         case title
         when :win
             puts 'あなたの勝ちです'
@@ -20,8 +20,8 @@ class Play
             puts '引き分けです'
         when :error
             puts '無効な文字です。もう一度入力してください'
-        when :hs
-            puts "選択してください\s\sPush「h」→ ヒット 、Push「s」→ スタンド" # hとsを１、２にしたい。ヒット、スタンド部分に引数を当てられるようにしたい。
+        when :choice
+            puts "選択してください\s\sPush「 1 」→ #{choice1} 、Push「 2 」→ #{choice2}" # hとsを１、２にしたい。ヒット、スタンド部分に引数を当てられるようにしたい。
         end
     end
 
@@ -86,19 +86,19 @@ class Play
                     @player.show
             else
                 @player.show
-                message :hs
+                message :choice
             end
 
             # ヒット、スタンドの処理（プレイヤーのターン）
             while true
                 # ブラックジャックの場合は強制的にスタンドさせる処理
                 if @player.blackjack?
-                    command = 's'
+                    command = 2
                 else
-                    command = gets.chomp # ヒットかスタンドか選択
+                    command = gets.to_i # ヒットかスタンドか選択
                 end
                 # ヒットの場合の処理
-                if command == "h"
+                if command == 1
                     while true
                         @player.draw
                         if @player.burst? # バーストしていないか確認
@@ -112,17 +112,17 @@ class Play
                         # 最大値（２１）の場合は強制的にスタンドの処理
                         if @player.total_score == 21
                             puts 'トータルスコアが最大値に達しました'
-                            command = 's'
+                            command = 2
                             break
                         end
                         # 最大値ではない場合は、再度ヒットするか処理
                         puts "もう一度引きますか？"
-                        message :hs
+                        message :choice
                         while true
-                            command = gets.chomp # 再度、ヒットかスタンドの選択
-                            if command == 'h'
+                            command = gets.to_i # 再度、ヒットかスタンドの選択
+                            if command == 1
                                 break
-                            elsif command == 's'
+                            elsif command == 2
                                 break
                             else
                                 message :error
@@ -130,9 +130,9 @@ class Play
                             end
                         end
                         # ヒットかスタンドの処理
-                        if command == 'h' 
+                        if command == 1 
                             redo
-                        elsif command == 's'
+                        elsif command == 2
                             break
                         end
                     end
@@ -140,7 +140,7 @@ class Play
                     if @player.burst?
                         break
                     end
-                elsif command == 's'
+                elsif command == 2
                     dealer_turn
                     command = nil
                     break
@@ -149,20 +149,20 @@ class Play
                     message :error
                     redo
                 end
-                if command == 's'
+                if command == 2
                     dealer_turn
                     break
                 end
             end
             # 再プレイの処理
             puts "もう一回遊びますか？"
-            message :hs
+            message :choice, "遊ぶ", "遊ばない"
             while true
-                command = gets.chomp # 再プレイするか選択
-                if command == "h"
+                command = gets.to_i # 再プレイするか選択
+                if command == 1
                     command = nil
                     break
-                elsif command == "s"
+                elsif command == 2
                     break
                 else
                     message :error
