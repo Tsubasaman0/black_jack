@@ -1,9 +1,10 @@
-require './player'
+require './card'
+require './deck'
+require './judge'
 require './money'
+require './player'
 
 class Play
-    @@money = Money.new
-    @@t = 'test'
     def initialize
         @player = Player.new
         @dealer = Player.new(name: 'ディーラー')
@@ -19,9 +20,9 @@ class Play
         when :draw
             puts '引き分けです'
         when :error
-            puts '無効な文字です。もう一度入力してください'
+            puts '無効です。もう一度入力してください'
         when :choice
-            puts "選択してください\s\sPush「 1 」→ #{choice1} 、Push「 2 」→ #{choice2}" # hとsを１、２にしたい。ヒット、スタンド部分に引数を当てられるようにしたい。
+            puts "選択してください\s\sPush「 1 」→ #{choice1} 、Push「 2 」→ #{choice2}" 
         end
     end
 
@@ -35,9 +36,13 @@ class Play
             @dealer.show
             if !@dealer.blackjack?
                 message :win
+                @player.money.stock += @player.bet_judge(@@bet, :blackjack)
+                @player.money.show
                 return
             else
                 message :draw
+                @player.money.stock += @player.bet_judge(@@bet, :draw)
+                @player.money.show
                 return
             end
         end
@@ -49,9 +54,13 @@ class Play
             if @dealer.burst?
                 puts 'バースト！'
                 message :win
+                @player.money.stock += @player.bet_judge(@@bet, :win)
+                @player.money.show
                 break
             elsif @dealer.total_score == 21 && @player.total_score == 21
                 message :draw
+                @player.money.stock += @player.bet_judge(@@bet, :draw)
+                @player.money.show
                 break
             end
         end
@@ -60,10 +69,37 @@ class Play
             return
         elsif @dealer.total_score == 21 && @player.total_score == 21 # お互い最大値に達していないか確認
             message :draw
+            @player.money.stock += @player.bet_judge(@@bet, :draw)
+            @player.money.show
             return
         else
             message :lose
+            @player.money.stock += @player.bet_judge(@@bet, :lose)
+            @player.money.show
             return
+        end
+    end
+
+    def bet_turn
+        @player.money.show
+        puts "いくらベットしますか？"
+        while true
+            bet = gets.to_i
+            if bet < 1
+                message :error
+                redo
+            elsif bet > @player.money.stock.to_i
+                puts "賭け金が手持ち金額を上回っています。もう一度入力してください。"
+                redo
+            else
+                puts <<~TEXT
+                #{bet} 円ベットしました。
+                #{'-' * 41}
+                TEXT
+                @player.bet_calc(bet)
+                @player.money.show
+                return bet
+            end
         end
     end
 
@@ -79,7 +115,8 @@ class Play
             @player.draw
             @dealer.draw  
             @dealer.show
-
+            @@bet = bet_turn
+            @player.bet_calc(@@bet)
             # プレイヤーがブラックジャックじゃないか確認の処理
             if @player.blackjack?
                     puts "ブラックジャック！"
@@ -105,6 +142,8 @@ class Play
                             @player.show
                             puts "バースト！！"
                             message :lose
+                            @player.money.stock += @player.bet_judge(@@bet, :lose)
+                            @player.money.show
                             break
                         end
                         # ドロー後のトータルスコアの確認
@@ -149,10 +188,12 @@ class Play
                     message :error
                     redo
                 end
+
                 if command == 2
                     dealer_turn
                     break
                 end
+
             end
             # 再プレイの処理
             puts "もう一回遊びますか？"

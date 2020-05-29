@@ -1,15 +1,13 @@
-require './deck'
-require './judge'
-
 
 class Player
     include Judge
-    attr_accessor :hands, :total_score, :name
+    attr_accessor :hands, :total_score, :name, :money
     @@deck = Deck.new
     def initialize(name: "プレイヤー")
         @hands = []
         @total_score = 0
         @name = name
+        @money = Money.new
     end
 
     def draw
@@ -58,6 +56,11 @@ class Player
         end
         @total_score
     end
+
+    def bet_calc(bet)
+        self.money.stock  = self.money.stock.to_i - bet 
+    end
+
     # テスト用メソッド
 
     def test
