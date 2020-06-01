@@ -1,15 +1,16 @@
 module Judge
 
     def bet_judge(bet, judge)
+        stock = self.money.stock
         case judge
         when :win
-            bet * 2
+            stock += bet * 2
         when :lose
-            return 0
+            stock += 0
         when :blackjack
-            bet * 3
+            stock += bet * 3
         when :draw
-            bet
+            stock += bet
         end
     end
 
@@ -38,6 +39,14 @@ module Judge
             end
         end
         false
+    end
+
+    def gameover?
+        self.money.stock <= 0 ? true : false
+    end
+
+    def win?
+        self.money.stock > 1000000 ? true : false
     end
 
 end

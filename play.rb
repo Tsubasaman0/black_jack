@@ -36,47 +36,38 @@ class Play
             @dealer.show
             if !@dealer.blackjack?
                 message :win
-                @player.money.stock += @player.bet_judge(@@bet, :blackjack)
+                @player.money.stock = @player.bet_judge(@@bet, :blackjack)
                 @player.money.show
                 return
             else
                 message :draw
-                @player.money.stock += @player.bet_judge(@@bet, :draw)
+                @player.money.stock = @player.bet_judge(@@bet, :draw)
                 @player.money.show
                 return
             end
         end
         # プレイヤーに勝つまでディーラーはヒットし続ける処理
-        while @player.total_score > @dealer.total_score
+        while true
             @dealer.draw
             @dealer.show
             wait
             if @dealer.burst?
                 puts 'バースト！'
                 message :win
-                @player.money.stock += @player.bet_judge(@@bet, :win)
+                @player.money.stock = @player.bet_judge(@@bet, :win)
                 @player.money.show
                 break
             elsif @dealer.total_score == 21 && @player.total_score == 21
                 message :draw
-                @player.money.stock += @player.bet_judge(@@bet, :draw)
+                @player.money.stock = @player.bet_judge(@@bet, :draw)
+                @player.money.show
+                break
+            elsif @player.total_score < @dealer.total_score
+                message :lose
+                @player.money.stock = @player.bet_judge(@@bet, :lose)
                 @player.money.show
                 break
             end
-        end
-
-        if @dealer.burst? # バーストしていた場合処理処理終了
-            return
-        elsif @dealer.total_score == 21 && @player.total_score == 21 # お互い最大値に達していないか確認
-            message :draw
-            @player.money.stock += @player.bet_judge(@@bet, :draw)
-            @player.money.show
-            return
-        else
-            message :lose
-            @player.money.stock += @player.bet_judge(@@bet, :lose)
-            @player.money.show
-            return
         end
     end
 
@@ -96,8 +87,6 @@ class Play
                 #{bet} 円ベットしました。
                 #{'-' * 41}
                 TEXT
-                @player.bet_calc(bet)
-                @player.money.show
                 return bet
             end
         end
@@ -110,6 +99,7 @@ class Play
             @dealer.reset
             # 初ターンの処理
             puts "ようこそ、ブラックジャックへ"
+            puts "ルール：手持ち資金が１００万円を超えたら勝ちです。０円になったら負けです。"
             puts "カードを配ります"
             @player.draw
             @player.draw
@@ -117,6 +107,7 @@ class Play
             @dealer.show
             @@bet = bet_turn
             @player.bet_calc(@@bet)
+            @player.money.show
             # プレイヤーがブラックジャックじゃないか確認の処理
             if @player.blackjack?
                     puts "ブラックジャック！"
@@ -125,7 +116,6 @@ class Play
                 @player.show
                 message :choice
             end
-
             # ヒット、スタンドの処理（プレイヤーのターン）
             while true
                 # ブラックジャックの場合は強制的にスタンドさせる処理
@@ -142,7 +132,7 @@ class Play
                             @player.show
                             puts "バースト！！"
                             message :lose
-                            @player.money.stock += @player.bet_judge(@@bet, :lose)
+                            @player.money.stock = @player.bet_judge(@@bet, :lose)
                             @player.money.show
                             break
                         end
@@ -195,6 +185,16 @@ class Play
                 end
 
             end
+            # ゲームオーバーか判定
+            if @player.gameover?
+                puts "所持金が０円になりました。"
+                puts "ゲームオーバーです。"
+                break
+            elsif @player.win?
+                puts "所持金が１００万円を超えました。"
+                puts "あなたの勝ちです！！！！！！おめでとう！！！！！！！！！！！！"
+                break
+            end
             # 再プレイの処理
             puts "もう一回遊びますか？"
             message :choice, "遊ぶ", "遊ばない"
@@ -211,8 +211,13 @@ class Play
                 end
             end
             # 再プレイの処理
+
             command == nil ? redo : break
         end
+    end
+
+    def gameover
+
     end
 
     def wait(words='Enterキーを押してください')
