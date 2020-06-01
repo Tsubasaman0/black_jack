@@ -1,15 +1,13 @@
-require './deck'
-require './judge'
-
 
 class Player
     include Judge
-    attr_accessor :hands, :total_score, :name
+    attr_accessor :hands, :total_score, :name, :money
     @@deck = Deck.new
     def initialize(name: "プレイヤー")
         @hands = []
         @total_score = 0
         @name = name
+        @money = Money.new
     end
 
     def draw
@@ -20,11 +18,16 @@ class Player
 
     
     def show
-        puts "#{self.name}の手札です"
+        hands = []
         self.hands.each do |hand|
-            puts "[ #{hand.mark} #{hand.number} ]"
+            hands << "#{hand.mark} #{hand.number}"
         end
-        puts "[ トータルスコア #{@total_score} ]"
+        puts "#{self.name}の手札です"
+        puts hands
+        puts  <<~TEXT
+        #{puts "[ トータル  #{@total_score} ]"}
+        -----------------------------------------
+        TEXT
     end
 
     def a_count
@@ -36,11 +39,11 @@ class Player
         end
         a
     end
-
-    # テスト用メソッド
-
-    def test
-        puts "テストーーーーーー"
+    
+    def reset
+        self.hands = []
+        self.total_score = 0
+        @@deck.reset
     end
 
     def total_score_calc
@@ -54,10 +57,17 @@ class Player
         @total_score
     end
 
-    def reset
-        self.hands = []
-        self.total_score = 0
+    def bet_calc(bet)
+        self.money.stock  = self.money.stock.to_i - bet 
     end
+
+    # テスト用メソッド
+
+    def test
+        puts "テストーーーーーー"
+    end
+
+
 
     def reset_score
         self.total_score = 0

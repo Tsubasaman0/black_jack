@@ -1,19 +1,18 @@
 module Judge
-    # def game_judge(target)
-    #     if self.total_score > target.total_score
-    #         puts "あなたのトータルスコア[ #{self.total_score} ]"
-    #         puts "ディーラーのトータルスコア[ #{target.total_score} ]"
-    #         puts 'あなたの勝ちです'
-    #     elsif self.total_score == target.total_score
-    #         puts "あなたのトータルスコア[ #{self.total_score} ]"
-    #         puts "ディーラーのトータルスコア[ #{target.total_score} ]"
-    #         puts '引き分けです'
-    #     else
-    #         puts "あなたのトータルスコア[ #{self.total_score} ]"
-    #         puts "ディーラーのトータルスコア[ #{target.total_score} ]"
-    #         puts 'あなたの負けです'
-    #     end
-    # end
+
+    def bet_judge(bet, judge)
+        stock = self.money.stock
+        case judge
+        when :win
+            stock += bet * 2
+        when :lose
+            stock += 0
+        when :blackjack
+            stock += bet * 3
+        when :draw
+            stock += bet
+        end
+    end
 
     def blackjack?
         if self.hands[1].number == "A" || self.hands[0].number == "A" 
@@ -40,6 +39,14 @@ module Judge
             end
         end
         false
+    end
+
+    def gameover?
+        self.money.stock <= 0 ? true : false
+    end
+
+    def win?
+        self.money.stock > 1000000 ? true : false
     end
 
 end

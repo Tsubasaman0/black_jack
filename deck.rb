@@ -1,4 +1,3 @@
-require './card'
 
 class Deck
     attr_accessor :cards
@@ -12,7 +11,7 @@ class Deck
 
     def create
         nums = ['A', 2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K']
-        mark = ['❤︎', '♦︎', '♤', '♧']
+        mark = ["❤ ハート\s\s\s\s", "♦︎ ダイヤ\s\s\s\s", "♤ スペード\s\s", "♧ クローバー"]
         mark.each do |m|
             nums.each do |n|
                 @cards << Card.new(m, n)
@@ -33,6 +32,11 @@ class Deck
         52.times do |n|
             puts "[ #{cards[n].mark} #{cards[n].number} ]"
         end
+    end
+
+    def reset
+        @cards = @cards.shuffle
+        @@draw_count = 0
     end
 end
 

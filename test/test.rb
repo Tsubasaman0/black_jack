@@ -1,4 +1,8 @@
 require 'minitest/autorun'
+require './card'
+require './deck'
+require './judge'
+require './money'
 require './player'
 class BlackJackTest < Minitest::Test
     # テストカードのマークは「 ♦︎ 」で統一
@@ -122,6 +126,19 @@ class BlackJackTest < Minitest::Test
         a_player.hands << @@test_A
         a_player.hands << @@test_A
         assert_equal 3, a_player.a_count
+    end
+
+    def test_bet_calc
+        #assert_equal 19000, @@test_player.bet_calc(1000)
+        
+    end
+
+    def test_bet_judge
+        p @@test_player.money.stock -= 250 # ベット
+        assert_equal 20250, @@test_player.bet_judge(250,  :win)
+        assert_equal 19750, @@test_player.bet_judge(250,  :lose)
+        assert_equal 20500, @@test_player.bet_judge(250,  :blackjack)
+        assert_equal 20000, @@test_player.bet_judge(250,  :draw)
     end
 
 end
